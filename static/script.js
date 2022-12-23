@@ -9,7 +9,10 @@ const BASE_URL = "http://127.0.0.1:5000/api";
 function generateCupcakeHTML(cupcake) {
 	return `
     <div data-cupcake-id="${cupcake.id}">
-        <li>${cupcake.flavor} / ${cupcake.size} / ${cupcake.rating}</li>
+        <li>
+            ${cupcake.flavor} / ${cupcake.size} / ${cupcake.rating}
+            <button class="delete-button">X</button>
+        </li>
         <div><img src="${cupcake.image}" alt="image of ${cupcake.flavor} cupcake" class="cupcake-img" /></div> 
     </div>
     `;
@@ -39,11 +42,20 @@ $("#new-cupcake-form").on("submit", async (evt) => {
 		size,
 		rating,
 		image,
-    });
-    
-    let newCupcake = $(generateCupcakeHTML(newCupcakeResponse.data.cupcake));
-    $("#cupcakes-list").append(newCupcake);
-    $("#new-cupcake-form").trigger("reset");
+	});
+
+	let newCupcake = $(generateCupcakeHTML(newCupcakeResponse.data.cupcake));
+	$("#cupcakes-list").append(newCupcake);
+	$("#new-cupcake-form").trigger("reset");
+});
+
+/** handle dupcake deletion */
+$("#cupcakes-list").on("click", ".delete-button", async (evt) => {
+	let $cupcake = $(evt.target).closest("div");
+	let cupcakeID = $cupcake.data("cupcake-id");
+
+	await axios.delete(`${BASE_URL}/cupcakes/${cupcakeID}`);
+	$cupcake.remove();
 });
 
 $(showCupcakes);
